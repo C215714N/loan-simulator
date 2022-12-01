@@ -1,7 +1,7 @@
 // Defino las Variables para el Footer
 let nombre = 'Alejandro Daniel Di Stefano',
     comision = 'Educación IT';
-
+let links = ['Inicio', 'Cotizaciones', 'Nosotros', 'Contacto']
 let formulario = [
     {
         id: 'monto', 
@@ -89,7 +89,7 @@ const navBar = (limit = []) => {
     nav.appendChild(ul)
     header.appendChild(nav)
 }
-navBar(['Inicio', 'Cotizaciones', 'Nosotros', 'Contacto']);
+navBar(links);
 
 
 // Defino Tabla de Simulación

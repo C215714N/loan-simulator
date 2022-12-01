@@ -1,6 +1,35 @@
 // Defino las Variables para el Footer
 let nombre = 'Alejandro Daniel Di Stefano',
     comision = 'Educación IT';
+
+let formulario = [
+    {
+        id: 'monto', 
+        label: 'Monto', 
+        type: 'text'
+    },
+    {
+        id: 'cantCuotas', 
+        label: 'Cantidad de Cuotas', 
+        type: 'text'
+    },
+    {
+        id: 'modalidad', 
+        label: 'Modalidad de Crédito', 
+        type: 'select', 
+        options: [ 'Frances','Aleman' ] 
+    },
+    {
+        id: 'tasaInteres', 
+        label: 'Tasa de Interés', 
+        type: 'text'
+    },
+    {
+        id: 'calcular', 
+        label: 'Calcular', 
+        type:'submit'
+    }
+]
 const
     d = document,
     copy = d.querySelector('#footer .copy'),
@@ -44,7 +73,7 @@ function resultado() {
     console.log('El monto totalque debe abonar al finalizar el pago total será de:' + ' ' + '$' + montoTotalsinIva + ' ' + 'S/IVA')
     console.log('El monto totalque debe abonar al finalizar el pago total será de:' + ' ' + '$' + montoTotal + ' ' + 'C/IVA')
 }
-resultado();
+// resultado();
 
 
 //********** Manejo del DOM **********//
@@ -72,16 +101,27 @@ const sectionTabla = (limits = []) => {
     sectionTabla.className = 'tabla'
     inputsValues.className = 'imputs-valores'
 
-    for (let div of limits) {
-        inputsValues.innerHTML += `<div class="imputs">
-            <label for="">${div}</label>
-            <input type="text"">
-            </div>`;
+    for (let field of limits) {
+        inputsValues.innerHTML += `
+        <div class="imputs">
+        ${ field.type != 'submit' ?
+            `<label for="#${field.id}">${field.label}</label>` : ''
+        }   
+        ${
+            field.type == 'select' ? 
+            `<select id="${field.id}">
+            ${ field.options.map(opt => `<option>${opt}</option>`) }
+            </select>` :
+            field.type == 'textarea' ?
+            `<textarea id="${field.id}"></textarea>` :
+            field.type != 'submit' ?
+            `<input id=${field.id} type="${field.type}">` : 
+            `<button id="${field.id}" class="boton">${field.label}</button>` 
+        }
+        </div>`;
     }
 
     sectionTabla.appendChild(inputsValues)
     main.appendChild(sectionTabla)    
 }
-sectionTabla(['Monto', 'Cantidad de Cuotas', 'Tasa de Interés']);
-
-
+sectionTabla(formulario);

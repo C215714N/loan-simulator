@@ -17,7 +17,7 @@ let formulario = [
         id: 'modalidad', 
         label: 'Modalidad de Crédito', 
         type: 'select', 
-        options: [ 'Frances','Aleman' ] 
+        options: [ 'Frances','Aleman','Americano' ] 
     },
     {
         id: 'tasaInteres', 
@@ -40,40 +40,39 @@ function setFooter() {
 }
 setFooter();
 
-// Definimos las Variables del Crédito
-const
-    monto = parseFloat(prompt('Ingrese el Monto que Desea Solicitar: ')),
-    cantCuotas = parseInt(prompt('Ingrese la Cantidad de Cuotas que desea financiar: ')),
-    iva = parseFloat(1.21),
+// // Definimos las Variables del Crédito
+const calcularInteres = (cuotas) => cuotas <= 12 ? 1.2 : cuotas <= 18 ? 1.3 : cuotas <= 24 ? 1.4 : 1.5
+
+// // Defino valores de las Cuotas y del Monto total con redondeo de 2 Decimales
+const calcularCuotas = (i) => 
+    modalidad.value == 'Frances' ? 
+    parseFloat(monto.value*(i/(1-(1+i)**(cantCuotas.value*-1))), 2) :
+    modalidad.value == 'Aleman'? 
+    parseFloat((monto.value*i)/(1-(1-i)**cantCuotas.value), 2) : 
+    parseFloat(monto.value, 2)+(monto.value*i)
+
+function resultado(i) {
+    let section = d.querySelector('section');
+    monto = parseFloat(monto.value),
+    cantCuotas = parseInt(cantCuotas.value),
+    iva = 1.21,
     mes = 360,
-    anios = ((cantCuotas * mes) / 12) / mes;
+    anual = ((cantCuotas * mes) / 12) / mes;
 
+    cuota = ( monto * (Math.pow(1+i/100, anual) * i/100) / (Math.pow(1+i/100, anual) - 1)).toFixed(2),
+    total = Number((cuota * cantCuotas / 10)).toFixed(2),
+    totalIVA = Number((total * iva).toFixed(2));
 
-if (cantCuotas <= 12) {
-    valorInteres = (1.20)
-} else if (cantCuotas > 12 && cantCuotas <= 18) {
-    valorInteres = (1.30)
-} else if (cantCuotas > 18 && cantCuotas <= 24) {
-    valorInteres = (1.40)
-} else {
-    valorInteres = (1.50)
-}
-
-// Defino valores de las Cuotas y del Monto total con redondeo de 2 Decimales
-let
-    cuota = (monto * (Math.pow(1 + valorInteres / 100, anios) * valorInteres / 100) / (Math.pow(1 + valorInteres / 100, anios) - 1)).toFixed(2),
-    montoTotalsinIva = Number((cuota * cantCuotas / 10)).toFixed(2),
-    montoTotal = Number((montoTotalsinIva * iva).toFixed(2));
-
-function resultado() {
-    for (i = 0; i < cantCuotas; i++) {
-        console.log('El valor de la Cuota Nro ' + parseInt(i + 1) + ' ' + 'es de' + ' ' + '$' + (cuota / 10).toFixed(2) + ' ' + 'pesos Argentinos')
+    loan = document.createElement('ul');
+    for (let i = 0; i < cantCuotas; i++) {
+        loan.innerHTML+=`<li> Cuota ${parseInt(i + 1)}: ${(cuota / 10).toFixed(2)}</li>`
     }
-    console.log('Usted adquirió el Préstamo finaciado con el método Francés')
-    console.log('El monto totalque debe abonar al finalizar el pago total será de:' + ' ' + '$' + montoTotalsinIva + ' ' + 'S/IVA')
-    console.log('El monto totalque debe abonar al finalizar el pago total será de:' + ' ' + '$' + montoTotal + ' ' + 'C/IVA')
+    loan.innerHTML += `
+        <li>total s/IVA: ${total} ARS</li>
+        <li>total c/IVA: ${totalIVA} ARS</li>
+    `;
+    section.appendChild(loan);
 }
-// resultado();
 
 
 //********** Manejo del DOM **********//
@@ -116,12 +115,26 @@ const sectionTabla = (limits = []) => {
             `<textarea id="${field.id}"></textarea>` :
             field.type != 'submit' ?
             `<input id=${field.id} type="${field.type}">` : 
-            `<button id="${field.id}" class="boton">${field.label}</button>` 
+            `<button id="${field.id}" 
+                class="boton"
+                onclick="showSelected()">
+                ${field.label}
+            </button>` 
         }
         </div>`;
     }
-
     sectionTabla.appendChild(inputsValues)
     main.appendChild(sectionTabla)    
 }
 sectionTabla(formulario);
+
+const showSelected = () => {
+    let a, interes;
+    formulario.forEach( field => {
+        eval(`const ${field['id']} = document.getElementById('${field['id']}')`);
+        interes = calcularInteres(cantCuotas.value);
+        tasaInteres.value = interes;
+        a = calcularCuotas(interes);
+    } )
+    resultado(interes);
+}
